@@ -1,3 +1,8 @@
+###!
+Tig: A novel way to template
+BSD Licensed
+###
+
 $ = jQuery
 
 ###
@@ -145,7 +150,6 @@ class TigEvaluator
     @exRegex = /[\s+]ex[\s+]/gi
     @structureRegex = /^structure[\s]+/i
     @textRegex = /^text[\s]+/i
-    @jsonRegex = /^json[\s]+/i
     @storageAttr = "data-tig-working-localdata"
   store: (node, data) ->
     # node is null, set global
@@ -184,7 +188,7 @@ class TigEvaluator
       $.extend(mergedData, merge)
     
     # check parents for storage
-    node.parents("*[#{@storageAttr}]").each (i, item) =>
+    $(node.parents("*[#{@storageAttr}]").get().reverse()).each (i, item) =>
       merge = @localData[$(item).attr(@storageAttr)] || {}
       $.extend(mergedData, merge)
     
