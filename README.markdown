@@ -4,7 +4,7 @@ It's much easier to build a page in HTML first, and then fuse dynamic data to it
 
 Quick Start
 ---
-<pre>
+```
 $(document).ready(function() {
   $(document.body).tig({
     user: {
@@ -17,11 +17,11 @@ $(document).ready(function() {
     }
   });
 });
-</pre>
+```
 
 And your markup...
 
-<pre>
+```
 <p data-tig-content="#{user/name} or ''">Fred Farkas</p>
 <p data-tig-content="#{user/idea} or 'none'">Brilliant</p>
 
@@ -37,7 +37,7 @@ And your markup...
     <div data-tig-content="#{localTest}">not local</div>
   </div>
 </div>
-</pre>
+```
 
 Compatibility
 ---
