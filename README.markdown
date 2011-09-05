@@ -79,23 +79,25 @@ data-tig-define="`[local|global] [var] = [expression]`"
 ---
 Define either a [local] or [global] variable named [var], and set it to the provided [expression]. Local variables will last until the tag's closure, while global variables will persist through the parse operation.
 
+If neither "local" or "global" is defined, it is assumed to be local.
+
 data-tig-condition="`[expression]`"
 ---
 Evaluates [expression] and if true, the html will be rendered. If it evaluates to false, the html will be removed from the document.
 
 data-tig-repeat="`[expression] as [var]`"
 ---
-Evaluates [expression] and repeats the given node N times, where N is the number of items in the collection. For any given item, a local variable will be created [var] which contains the item in the iteration.
+Evaluates [expression] and repeats the given node N times, where N is the number of items in the collection. For any given item, a local variable will be created repeat/[var] which contains the item in the iteration.
 
-During the iteration, the following additional variables are available within the "repeat" namespace
+During the iteration, the following additional variables are available within the "repeat/`[var]`" namespace
 
-* #{repeat/index}: the value of the current iteration (array based)
-* #{repeat/number}: the number of the iteration (human readable)
-* #{repeat/even}: true if this is an even value
-* #{repeat/odd}: true if this is an odd value
-* #{repeat/start}: the starting index for the iteration (array based)
-* #{repeat/end}: the last value in the iteration (array based)
-* #{repeat/length}: the total number of items in the iteration
+* #{repeat/[var]/index}: the value of the current iteration (array based)
+* #{repeat/[var]/number}: the number of the iteration (human readable)
+* #{repeat/[var]/even}: true if this is an even value
+* #{repeat/[var]/odd}: true if this is an odd value
+* #{repeat/[var]/start}: the starting index for the iteration (array based)
+* #{repeat/[var]/end}: the last value in the iteration (array based)
+* #{repeat/[var]/length}: the total number of items in the iteration
 
 data-tig-content="`[expression]`"
 ---

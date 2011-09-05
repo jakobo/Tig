@@ -418,15 +418,16 @@ class TigRepeat
     for item in result
       newNode = node.clone()
       # on newNode, add local variables
-      payload =
-        repeat:
-          index: count
-          number: count + 1
-          even: (count % 2) != 0
-          odd: (count % 2) == 0
-          start: 0
-          end: result.length - 1
-          length: result.length
+      payload = {}
+      repeat =
+        index: count
+        number: count + 1
+        even: (count % 2) != 0
+        odd: (count % 2) == 0
+        start: 0
+        end: result.length - 1
+        length: result.length
+      payload.repeat[loopName] = repeat
       payload[loopName] = result[count]
       evaluator.store(newNode, payload)
       node.parent().append(newNode)
