@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+<script type="text/javascript" src="tig.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $(document.body).tig({
+    user: {
+      name: "John Do<e",
+      looped: [
+        { foo: "one" },
+        { foo: "two" },
+        { foo: "three" }
+      ]
+    }
+  });
+});
+</script>
+</head>
+<body>
+<p data-tig-content="#{user/name} or ''">Fred Farkas</p>
+<p data-tig-content="#{user/idea} or 'none'">Brilliant</p>
+
+<a href="#" class="one" data-tig-attribute="href = 'http://www.google.com', class += ' two'">attr changes</a>
+
+<div data-tig-condition="#{user/tested} or (#{user/otherTested} and #{user/otherTestedB})">tested</div>
+<div data-tig-omit="true">I get dropped<p>and me</p></div>
+<ul>
+  <li data-tig-repeat="#{user/looped} as item"><p>Test</p><p data-tig-content="#{item/foo}">repl</p></li>
+</ul>
+<div data-tig-define="localTest = 'is local!'">
+  <div>
+    <div data-tig-content="#{localTest}">not local</div>
+  </div>
+</div>
+</body>
+</html>
