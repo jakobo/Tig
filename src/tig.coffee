@@ -17,21 +17,6 @@ $.extend({
   # See: constants
   tigConstants: () ->
     return constants
-  # searches data for the nested key and returns its value
-  tigResolve: (keyString, data, defaultsTo = null) ->
-    keyPieces = keyString.split("/")
-    path = data
-    failed = false
-    for key in keyPieces
-      if path[key]?
-        path = path[key]
-      else
-        failed = true
-        break
-    if failed
-      return defaultsTo
-    else
-      return path
 })
 
 ###
@@ -58,7 +43,21 @@ Registered and sorted components
 tigs = []
 sortedTigs = []
 sortedTigsIsDirty = true
-tales = {}
+
+tigResolve = (keyString, data, defaultsTo = null) ->
+  keyPieces = keyString.split("/")
+  path = data
+  failed = false
+  for key in keyPieces
+    if path[key]?
+      path = path[key]
+    else
+      failed = true
+      break
+  if failed
+    return defaultsTo
+  else
+    return path
 
 ###
 A Method used for sorting the Tigs collection
@@ -201,7 +200,7 @@ class TigEvaluator
     # replace the #{} with a function call to tigResolve(x, to)
     # replace " and " + " or " to their logical operators
     # replace " gt ", " lt ", " gte ", " lte ", " eq ", " ex " with symbols
-    str = str.replace(@resolveRegex, "$.tigResolve('$1', mergedData, #{options.to})")
+    str = str.replace(@resolveRegex, "tigResolve('$1', mergedData, #{options.to})")
              .replace(@andRegex, " && ")
              .replace(@orRegex, " || ")
              .replace(@gteRegex, " >= ")
