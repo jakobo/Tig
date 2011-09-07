@@ -49,6 +49,13 @@ tigs = []
 sortedTigs = []
 sortedTigsIsDirty = true
 
+###
+Resolve a key string collection
+Method:     tigResolve
+Arguments:  keyString - a string to search once converted to dotted.object
+            data - an object literal to scan
+            defaultsTo - the default when object is not found
+###
 tigResolve = (keyString, data, defaultsTo = null) ->
   keyPieces = keyString.split("/")
   path = data
@@ -109,7 +116,7 @@ parse = (node, data, options) ->
   
   tigEvaluator = new TigEvaluator(data)
   
-  # for each tig, extract search and go
+  # for each tig, extract, search, and go
   for tigItem in sortedTigs
     $(tigItem.searchString(), node).each () ->
       tigItem.onMatch($(this), tigEvaluator)
