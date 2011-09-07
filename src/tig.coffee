@@ -1,13 +1,33 @@
-###!
-Tig: A novel way to template
-BSD Licensed
-###
+# #############################################################################
+# Tig: A novel way to template
+# MIT Licensed
+# #############################################################################
 
-$ = jQuery
+# #############################################################################
+# Constants used in this application
+# #############################################################################
+context = this
+constants =
+  PREPROCESSING_COMPLETE: -100
+  PROCESSING_BEGIN:       0
+  HTML_COMPLIANCE:        100
+  TIG_DEFINE:             200
+  TIG_CONDITION:          300
+  TIG_REPEAT:             400
+  TIG_CONTENT:            500
+  TIG_REPLACE:            600
+  TIG_ATTRIBUTES:         700
+  TIG_OMIT:               800
+  TIG_BLOCK:              900
+  TIG_CLEANUP:            1000
+  PROCESSING_COMPLETE:    1100
 
-###
-These are the public jQuery methods
-###
+# #############################################################################
+# jQuery Support
+# #############################################################################
+$ = context.jQuery
+
+# Public jQuery Methods
 $.fn.extend({
   # See: parse()
   tig: (data, options) ->
@@ -24,38 +44,20 @@ $.extend({
     return constants
 })
 
-###
-Constants used in this application
-###
-constants =
-  PREPROCESSING_COMPLETE: -100
-  PROCESSING_BEGIN:       0
-  HTML_COMPLIANCE:        100
-  TIG_DEFINE:             200
-  TIG_CONDITION:          300
-  TIG_REPEAT:             400
-  TIG_CONTENT:            500
-  TIG_REPLACE:            600
-  TIG_ATTRIBUTES:         700
-  TIG_OMIT:               800
-  TIG_BLOCK:              900
-  TIG_CLEANUP:            1000
-  PROCESSING_COMPLETE:    1100
-
-###
-Registered and sorted components
-###
+# #############################################################################
+# Registered and sorted components
+# #############################################################################
 tigs = []
 sortedTigs = []
 sortedTigsIsDirty = true
 
-###
-Resolve a key string collection
-Method:     tigResolve
-Arguments:  keyString - a string to search once converted to dotted.object
-            data - an object literal to scan
-            defaultsTo - the default when object is not found
-###
+# #############################################################################
+# Resolve a key string collection
+# Method:     tigResolve
+# Arguments:  keyString - a string to search once converted to dotted.object
+#             data - an object literal to scan
+#             defaultsTo - the default when object is not found
+# #############################################################################
 tigResolve = (keyString, data, defaultsTo = null) ->
   keyPieces = keyString.split("/")
   path = data
@@ -71,11 +73,11 @@ tigResolve = (keyString, data, defaultsTo = null) ->
   else
     return path
 
-###
-A Method used for sorting the Tigs collection
-Method:     sortTigs
-Arguments:  (none)
-###
+# #############################################################################
+# A Method used for sorting the Tigs collection
+# Method:     sortTigs
+# Arguments:  (none)
+# #############################################################################
 sortTigs = () ->
   weights = {}
   weightSort = []
@@ -102,13 +104,13 @@ sortTigs = () ->
   # mark clean
   sortedTigsIsDirty = false
 
-###
-The main parsing method. This runs through all tigs found.
-Method:     parse
-Arguments:  node - the node being manipulated
-            data - the object literal containing the data to bind to the template
-            options - an object literal of options that can be invoked
-###
+# #############################################################################
+# The main parsing method. This runs through all tigs found.
+# Method:     parse
+# Arguments:  node - the node being manipulated
+#             data - the object literal containing the data to bind to the template
+#             options - an object literal of options that can be invoked
+# #############################################################################
 parse = (node, data, options) ->
   if sortedTigsIsDirty then sortTigs()
   
@@ -121,26 +123,22 @@ parse = (node, data, options) ->
     $(tigItem.searchString(), node).each () ->
       tigItem.onMatch($(this), tigEvaluator)
     
-###
-Register a tig item into the system at the specified weight. Useful
-for adding and extending functionality
-Method:     register
-Arguments:  item - the object to register. Is an uninstantiated object
-            weight - a numerical weight to order it in the parsing
-###
+# #############################################################################
+# Register a tig item into the system at the specified weight. Useful
+# for adding and extending functionality
+# Method:     register
+# Arguments:  item - the object to register. Is an uninstantiated object
+#             weight - a numerical weight to order it in the parsing
+# #############################################################################
 register = (item, weight) ->
   tigs.push {
     item: new item(),
     weight: weight
   }
 
-###
--------------------------------------------------------------------------------
-###
-
-###
-TigEvaluator: Turns strings into meaningful references
-###
+# #############################################################################
+# TigEvaluator: Turns strings into meaningful references
+# #############################################################################
 class TigEvaluator
   constructor: (data) ->
     @data = data
@@ -233,13 +231,10 @@ class TigEvaluator
     
     # return the return value
     return result
-###
--------------------------------------------------------------------------------
-###
 
-###
-Tig LocalData Cleaner
-###
+# #############################################################################
+# Tig LocalData Cleaner
+# #############################################################################
 class TigLocalDataCleaner
   constructor: () ->
     @attr = "data-tig-working-localdata"
@@ -249,9 +244,9 @@ class TigLocalDataCleaner
     node.removeAttr(@attr)
 $.tigRegister(TigLocalDataCleaner, constants.TIG_CLEANUP)
 
-###
-TigDefine: Handles local definitions of items
-###
+# #############################################################################
+# TigDefine: Handles local definitions of items
+# #############################################################################
 class TigDefine
   constructor: () ->
     @attr = "data-tig-define"
@@ -301,9 +296,9 @@ class TigDefine
     return true
 $.tigRegister(TigDefine, constants.TIG_DEFINE)
 
-###
-TigContent: Handles content resolution and replaces into the node
-###
+# #############################################################################
+# TigContent: Handles content resolution and replaces into the node
+# #############################################################################
 class TigContent
   constructor: () ->
     @attr = "data-tig-content"
@@ -314,9 +309,9 @@ class TigContent
     node.removeAttr(@attr).html(evaluator.evaluate(attr, node))
 $.tigRegister(TigContent, constants.TIG_CONTENT)
 
-###
-TigReplace: replaces the entire node with new content
-###
+# #############################################################################
+# TigReplace: replaces the entire node with new content
+# #############################################################################
 class TigReplace
   constructor: () ->
     @attr = "data-tig-replace"
@@ -328,9 +323,9 @@ class TigReplace
     node.remove()
 $.tigRegister(TigReplace, constants.TIG_REPLACE)
 
-###
-TigBlock: a null op. The block is removed, all content moves up one parent
-###
+# #############################################################################
+# TigBlock: a null op. The block is removed, all content moves up one parent
+# #############################################################################
 class TigBlock
   constructor: () ->
     @attr = "data-tig-block"
@@ -342,9 +337,9 @@ class TigBlock
     node.remove()
 $.tigRegister(TigBlock, constants.TIG_BLOCK)
 
-###
-TigAttribute: Set an attribute to the provided evaluator syntax
-###
+# #############################################################################
+# TigAttribute: Set an attribute to the provided evaluator syntax
+# #############################################################################
 class TigAttribute
   constructor: () ->
     @attr = "data-tig-attribute"
@@ -368,9 +363,9 @@ class TigAttribute
     node.removeAttr(@attr)
 $.tigRegister(TigAttribute, constants.TIG_ATTRIBUTES)
 
-###
-TigCondition: Show the node if the condition evaluates truthy
-###
+# #############################################################################
+# TigCondition: Show the node if the condition evaluates truthy
+# #############################################################################
 class TigCondition
   constructor: () ->
     @attr = "data-tig-condition"
@@ -381,9 +376,9 @@ class TigCondition
     if !result then node.remove() else node.removeAttr(@attr)
 $.tigRegister(TigCondition, constants.TIG_CONDITION)
 
-###
-TigOmit: Simply removes the tag
-###
+# #############################################################################
+# TigOmit: Simply removes the tag
+# #############################################################################
 class TigOmit
   constructor: () ->
     @attr = "data-tig-omit"
@@ -397,9 +392,9 @@ class TigOmit
       node.removeAttr(@attr)
 $.tigRegister(TigOmit, constants.TIG_OMIT)
 
-###
-TigRepeat: Repeatable sections of a document
-###
+# #############################################################################
+# TigRepeat: Repeatable sections of a document
+# #############################################################################
 class TigRepeat
   constructor: () ->
     @attr = "data-tig-repeat"

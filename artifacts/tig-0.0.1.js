@@ -30,33 +30,9 @@ THE SOFTWARE.
 */
 
 (function() {
-  /*!
-  Tig: A novel way to template
-  BSD Licensed
-  */  var $, TigAttribute, TigBlock, TigCondition, TigContent, TigDefine, TigEvaluator, TigLocalDataCleaner, TigOmit, TigRepeat, TigReplace, constants, parse, register, sortTigs, sortedTigs, sortedTigsIsDirty, tigResolve, tigs;
+  var $, TigAttribute, TigBlock, TigCondition, TigContent, TigDefine, TigEvaluator, TigLocalDataCleaner, TigOmit, TigRepeat, TigReplace, constants, context, parse, register, sortTigs, sortedTigs, sortedTigsIsDirty, tigResolve, tigs;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
-  $ = jQuery;
-  /*
-  These are the public jQuery methods
-  */
-  $.fn.extend({
-    tig: function(data, options) {
-      parse(this, data, options);
-      return this;
-    }
-  });
-  $.extend({
-    tigRegister: function(item, weight) {
-      register(item, weight);
-      return this;
-    },
-    tigConstants: function() {
-      return constants;
-    }
-  });
-  /*
-  Constants used in this application
-  */
+  context = this;
   constants = {
     PREPROCESSING_COMPLETE: -100,
     PROCESSING_BEGIN: 0,
@@ -72,19 +48,25 @@ THE SOFTWARE.
     TIG_CLEANUP: 1000,
     PROCESSING_COMPLETE: 1100
   };
-  /*
-  Registered and sorted components
-  */
+  $ = context.jQuery;
+  $.fn.extend({
+    tig: function(data, options) {
+      parse(this, data, options);
+      return this;
+    }
+  });
+  $.extend({
+    tigRegister: function(item, weight) {
+      register(item, weight);
+      return this;
+    },
+    tigConstants: function() {
+      return constants;
+    }
+  });
   tigs = [];
   sortedTigs = [];
   sortedTigsIsDirty = true;
-  /*
-  Resolve a key string collection
-  Method:     tigResolve
-  Arguments:  keyString - a string to search once converted to dotted.object
-              data - an object literal to scan
-              defaultsTo - the default when object is not found
-  */
   tigResolve = function(keyString, data, defaultsTo) {
     var failed, key, keyPieces, path, _i, _len;
     if (defaultsTo == null) {
@@ -108,11 +90,6 @@ THE SOFTWARE.
       return path;
     }
   };
-  /*
-  A Method used for sorting the Tigs collection
-  Method:     sortTigs
-  Arguments:  (none)
-  */
   sortTigs = function() {
     var tigItem, weight, weightSort, weightSortHash, weights, _i, _j, _k, _len, _len2, _len3, _ref;
     weights = {};
@@ -142,13 +119,6 @@ THE SOFTWARE.
     }
     return sortedTigsIsDirty = false;
   };
-  /*
-  The main parsing method. This runs through all tigs found.
-  Method:     parse
-  Arguments:  node - the node being manipulated
-              data - the object literal containing the data to bind to the template
-              options - an object literal of options that can be invoked
-  */
   parse = function(node, data, options) {
     var tigEvaluator, tigItem, tigNodeBucket, _i, _len, _results;
     if (sortedTigsIsDirty) {
@@ -165,25 +135,12 @@ THE SOFTWARE.
     }
     return _results;
   };
-  /*
-  Register a tig item into the system at the specified weight. Useful
-  for adding and extending functionality
-  Method:     register
-  Arguments:  item - the object to register. Is an uninstantiated object
-              weight - a numerical weight to order it in the parsing
-  */
   register = function(item, weight) {
     return tigs.push({
       item: new item(),
       weight: weight
     });
   };
-  /*
-  -------------------------------------------------------------------------------
-  */
-  /*
-  TigEvaluator: Turns strings into meaningful references
-  */
   TigEvaluator = (function() {
     function TigEvaluator(data) {
       this.data = data;
@@ -260,12 +217,6 @@ THE SOFTWARE.
     };
     return TigEvaluator;
   })();
-  /*
-  -------------------------------------------------------------------------------
-  */
-  /*
-  Tig LocalData Cleaner
-  */
   TigLocalDataCleaner = (function() {
     function TigLocalDataCleaner() {
       this.attr = "data-tig-working-localdata";
@@ -279,9 +230,6 @@ THE SOFTWARE.
     return TigLocalDataCleaner;
   })();
   $.tigRegister(TigLocalDataCleaner, constants.TIG_CLEANUP);
-  /*
-  TigDefine: Handles local definitions of items
-  */
   TigDefine = (function() {
     function TigDefine() {
       this.attr = "data-tig-define";
@@ -328,9 +276,6 @@ THE SOFTWARE.
     return TigDefine;
   })();
   $.tigRegister(TigDefine, constants.TIG_DEFINE);
-  /*
-  TigContent: Handles content resolution and replaces into the node
-  */
   TigContent = (function() {
     function TigContent() {
       this.attr = "data-tig-content";
@@ -346,9 +291,6 @@ THE SOFTWARE.
     return TigContent;
   })();
   $.tigRegister(TigContent, constants.TIG_CONTENT);
-  /*
-  TigReplace: replaces the entire node with new content
-  */
   TigReplace = (function() {
     function TigReplace() {
       this.attr = "data-tig-replace";
@@ -365,9 +307,6 @@ THE SOFTWARE.
     return TigReplace;
   })();
   $.tigRegister(TigReplace, constants.TIG_REPLACE);
-  /*
-  TigBlock: a null op. The block is removed, all content moves up one parent
-  */
   TigBlock = (function() {
     function TigBlock() {
       this.attr = "data-tig-block";
@@ -384,9 +323,6 @@ THE SOFTWARE.
     return TigBlock;
   })();
   $.tigRegister(TigBlock, constants.TIG_BLOCK);
-  /*
-  TigAttribute: Set an attribute to the provided evaluator syntax
-  */
   TigAttribute = (function() {
     function TigAttribute() {
       this.attr = "data-tig-attribute";
@@ -417,9 +353,6 @@ THE SOFTWARE.
     return TigAttribute;
   })();
   $.tigRegister(TigAttribute, constants.TIG_ATTRIBUTES);
-  /*
-  TigCondition: Show the node if the condition evaluates truthy
-  */
   TigCondition = (function() {
     function TigCondition() {
       this.attr = "data-tig-condition";
@@ -439,9 +372,6 @@ THE SOFTWARE.
     return TigCondition;
   })();
   $.tigRegister(TigCondition, constants.TIG_CONDITION);
-  /*
-  TigOmit: Simply removes the tag
-  */
   TigOmit = (function() {
     function TigOmit() {
       this.attr = "data-tig-omit";
@@ -461,9 +391,6 @@ THE SOFTWARE.
     return TigOmit;
   })();
   $.tigRegister(TigOmit, constants.TIG_OMIT);
-  /*
-  TigRepeat: Repeatable sections of a document
-  */
   TigRepeat = (function() {
     function TigRepeat() {
       this.attr = "data-tig-repeat";
