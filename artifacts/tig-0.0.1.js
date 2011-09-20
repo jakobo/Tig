@@ -423,6 +423,7 @@ THE SOFTWARE.
           end: result.length - 1,
           length: result.length
         };
+        payload.repeat = payload.repeat || {};
         payload.repeat[loopName] = repeat;
         payload[loopName] = result[count];
         evaluator.store(newNode, payload);

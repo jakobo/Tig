@@ -429,6 +429,7 @@ class TigRepeat
         start: 0
         end: result.length - 1
         length: result.length
+      payload.repeat = payload.repeat or {}
       payload.repeat[loopName] = repeat
       payload[loopName] = result[count]
       evaluator.store(newNode, payload)
