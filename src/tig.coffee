@@ -162,11 +162,12 @@ class TigEvaluator
       $.extend(@globalData, data)
       return -1
     
-    if $(node).attr(@storageAttr)?
+    currentStoreId = $(node).attr(@storageAttr) || null
+    if currentStoreId
       # if node already has data, merge to new
-      index = $(item).attr(@storageAttr)
+      index = $(node).attr(@storageAttr)
       merge = @localData[index] || {}
-      data = $.extend(merge, data)
+      data = $.extend(true, merge, data)
       @localData[index] = data
     else
       # new item
@@ -174,28 +175,29 @@ class TigEvaluator
       @localData.push data
       node.attr(@storageAttr, index)
     return index
-  evaluate: (str, node, options = {}) ->
-    $.extend({
+  evaluate: (str, node, userOptions = {}) ->
+    options = {}
+    $.extend(options, {
       to: "null"
       structure: false
-    }, options)
+    }, userOptions)
     
     # create localData
     mergedData = {}
     originalString = str
     
     # merge data and globals
-    $.extend(mergedData, @data, @globalData)
+    $.extend(true, mergedData, @data, @globalData)
     
     # check self for storage
     if $(node).attr(@storageAttr)?
       merge = @localData[$(node).attr(@storageAttr)] || {}
-      $.extend(mergedData, merge)
+      $.extend(true, mergedData, merge)
     
     # check parents for storage
     $(node.parents("*[#{@storageAttr}]").get().reverse()).each (i, item) =>
       merge = @localData[$(item).attr(@storageAttr)] || {}
-      $.extend(mergedData, merge)
+      $.extend(true, mergedData, merge)
     
     # check for structure or text
     isStructure = false
@@ -401,15 +403,30 @@ class TigRepeat
     @phrases = /^[\s]*(.*?)[\s]*as[\s]*(.*)[\s]*$/
   searchString: () ->
     return "*[#{@attr}]"
+  buildRepeatPayload: (count, total, loopName, item) ->
+    payload = {}
+    repeat =
+      index: count
+      number: count + 1
+      even: (count % 2) != 0
+      odd: (count % 2) == 0
+      start: 0
+      end: total - 1
+      length: total
+    payload.repeat = {}
+    payload.repeat[loopName] = repeat
+    payload[loopName] = item
+    return payload
   onMatch: (node, evaluator) ->
     # evaluate attr to a value
     attr = node.attr(@attr)
     fragments = attr.match(@phrases)
-    result = evaluator.evaluate(fragments[1], node, {
+    results = evaluator.evaluate(fragments[1], node, {
       to: "[]"
       structure: true
     })
     loopName = fragments[2]
+    total = results.length
 
     # remove attr before cloning
     node.removeAttr(@attr)
@@ -417,21 +434,9 @@ class TigRepeat
     # for each item in the loop, clone node
     # set defines for the local item
     count = 0
-    for item in result
+    for item in results
       newNode = node.clone()
-      # on newNode, add local variables
-      payload = {}
-      repeat =
-        index: count
-        number: count + 1
-        even: (count % 2) != 0
-        odd: (count % 2) == 0
-        start: 0
-        end: result.length - 1
-        length: result.length
-      payload.repeat = payload.repeat or {}
-      payload.repeat[loopName] = repeat
-      payload[loopName] = result[count]
+      payload = @buildRepeatPayload(count, total, loopName, item)
       evaluator.store(newNode, payload)
       node.parent().append(newNode)
       count++

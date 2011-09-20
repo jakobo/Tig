@@ -160,15 +160,16 @@ THE SOFTWARE.
       this.storageAttr = "data-tig-working-localdata";
     }
     TigEvaluator.prototype.store = function(node, data) {
-      var index, merge;
+      var currentStoreId, index, merge;
       if (node === null) {
         $.extend(this.globalData, data);
         return -1;
       }
-      if ($(node).attr(this.storageAttr) != null) {
-        index = $(item).attr(this.storageAttr);
+      currentStoreId = $(node).attr(this.storageAttr) || null;
+      if (currentStoreId) {
+        index = $(node).attr(this.storageAttr);
         merge = this.localData[index] || {};
-        data = $.extend(merge, data);
+        data = $.extend(true, merge, data);
         this.localData[index] = data;
       } else {
         index = this.localData.length;
@@ -177,25 +178,26 @@ THE SOFTWARE.
       }
       return index;
     };
-    TigEvaluator.prototype.evaluate = function(str, node, options) {
-      var isStructure, merge, mergedData, originalString, result;
-      if (options == null) {
-        options = {};
+    TigEvaluator.prototype.evaluate = function(str, node, userOptions) {
+      var isStructure, merge, mergedData, options, originalString, result;
+      if (userOptions == null) {
+        userOptions = {};
       }
-      $.extend({
+      options = {};
+      $.extend(options, {
         to: "null",
         structure: false
-      }, options);
+      }, userOptions);
       mergedData = {};
       originalString = str;
-      $.extend(mergedData, this.data, this.globalData);
+      $.extend(true, mergedData, this.data, this.globalData);
       if ($(node).attr(this.storageAttr) != null) {
         merge = this.localData[$(node).attr(this.storageAttr)] || {};
-        $.extend(mergedData, merge);
+        $.extend(true, mergedData, merge);
       }
       $(node.parents("*[" + this.storageAttr + "]").get().reverse()).each(__bind(function(i, item) {
         merge = this.localData[$(item).attr(this.storageAttr)] || {};
-        return $.extend(mergedData, merge);
+        return $.extend(true, mergedData, merge);
       }, this));
       isStructure = false;
       if ((str != null ? str.indexOf('structure ') : void 0) === 0 || options.structure) {
@@ -399,33 +401,39 @@ THE SOFTWARE.
     TigRepeat.prototype.searchString = function() {
       return "*[" + this.attr + "]";
     };
+    TigRepeat.prototype.buildRepeatPayload = function(count, total, loopName, item) {
+      var payload, repeat;
+      payload = {};
+      repeat = {
+        index: count,
+        number: count + 1,
+        even: (count % 2) !== 0,
+        odd: (count % 2) === 0,
+        start: 0,
+        end: total - 1,
+        length: total
+      };
+      payload.repeat = {};
+      payload.repeat[loopName] = repeat;
+      payload[loopName] = item;
+      return payload;
+    };
     TigRepeat.prototype.onMatch = function(node, evaluator) {
-      var attr, count, fragments, item, loopName, newNode, payload, repeat, result, _i, _len;
+      var attr, count, fragments, item, loopName, newNode, payload, results, total, _i, _len;
       attr = node.attr(this.attr);
       fragments = attr.match(this.phrases);
-      result = evaluator.evaluate(fragments[1], node, {
+      results = evaluator.evaluate(fragments[1], node, {
         to: "[]",
         structure: true
       });
       loopName = fragments[2];
+      total = results.length;
       node.removeAttr(this.attr);
       count = 0;
-      for (_i = 0, _len = result.length; _i < _len; _i++) {
-        item = result[_i];
+      for (_i = 0, _len = results.length; _i < _len; _i++) {
+        item = results[_i];
         newNode = node.clone();
-        payload = {};
-        repeat = {
-          index: count,
-          number: count + 1,
-          even: (count % 2) !== 0,
-          odd: (count % 2) === 0,
-          start: 0,
-          end: result.length - 1,
-          length: result.length
-        };
-        payload.repeat = payload.repeat || {};
-        payload.repeat[loopName] = repeat;
-        payload[loopName] = result[count];
+        payload = this.buildRepeatPayload(count, total, loopName, item);
         evaluator.store(newNode, payload);
         node.parent().append(newNode);
         count++;
