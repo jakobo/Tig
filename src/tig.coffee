@@ -438,7 +438,7 @@ class TigRepeat
       newNode = node.clone()
       payload = @buildRepeatPayload(count, total, loopName, item)
       evaluator.store(newNode, payload)
-      node.parent().append(newNode)
+      node.before(newNode)
       count++
     # we now have a ton of things with local defines and the block has been repeated
     # remove the original templated node

@@ -435,7 +435,7 @@ THE SOFTWARE.
         newNode = node.clone();
         payload = this.buildRepeatPayload(count, total, loopName, item);
         evaluator.store(newNode, payload);
-        node.parent().append(newNode);
+        node.before(newNode);
         count++;
       }
       return node.remove();
